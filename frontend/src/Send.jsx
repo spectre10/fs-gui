@@ -7,17 +7,16 @@ function Send() {
     function handle() {
         OpenFilePicker().then((result) => {
             GetSDP(result.length, result).then((sdpres) => {
-                // setSuccess(true);
                 navigate("/send/sdp", { state: { filesArr: result, sdpprop: sdpres } });
             })
         })
     }
     return (
         <>
-            <div className="h-[100vh] bg-red-600 flex justify-center items-center">
-                <span name="span" className="border-2 border-dashed p-1 h-[calc(100vh-100px)] w-[calc(100vw-100px)] flex flex-col justify-center items-center hover:cursor-pointer" onClick={handle}>
+            <div className="h-[100vh] bg-white flex justify-center items-center">
+                <span name="span" className="border-2 border-dashed border-black p-1 h-[calc(100vh-100px)] w-[calc(100vw-100px)] flex flex-col justify-center items-center hover:cursor-pointer" onClick={handle}>
                     <img src={filesave} className="h-[10vh]" alt="error" />
-                    <p className="text-2xl border-12">Add files to send</p>
+                    <p className="text-2xl text-black border-12">Add files to send</p>
                 </span>
             </div>
         </>
