@@ -18,6 +18,12 @@ type App struct {
 	syncChan chan struct{}
 }
 
+type Stats struct {
+	TimeTakenSeconds       string `json:"timeTakenSeconds"`
+	TotalAmountTransferred string `json:"totalAmountTransferred"`
+	AverageSpeedMiB        string `json:"averageSpeedMiB"`
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
@@ -70,4 +76,13 @@ func (a *App) GetSDP(n int, paths []string) string {
 	a.session = session
 	lock.Unlock()
 	return sdp
+}
+
+func (a *App) GetStats() Stats {
+	<-a.session.StatsDone
+	return Stats{
+		fmt.Sprintf("%.2f Seconds", a.session.TimeTakenSeconds),
+		a.session.TotalAmountTransferred,
+		fmt.Sprintf("%.2f MiB/s", a.session.AverageSpeedMiB),
+	}
 }

@@ -10,6 +10,10 @@ export function GetSDP(arg1, arg2) {
   return window['go']['main']['App']['GetSDP'](arg1, arg2);
 }
 
+export function GetStats() {
+  return window['go']['main']['App']['GetStats']();
+}
+
 export function OpenFilePicker() {
   return window['go']['main']['App']['OpenFilePicker']();
 }

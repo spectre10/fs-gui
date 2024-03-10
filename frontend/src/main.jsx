@@ -5,6 +5,7 @@ import './style.css'
 import App from './App'
 import Send from './Send'
 import Sdp from './Sdp'
+import SendDone from './SendDone'
 import Receive from './Receive'
 
 const container = document.getElementById('root')
@@ -17,6 +18,7 @@ root.render(
                 <Route path="/" element={<App />} exact />
                 <Route path="/send" element={<Send />} exact />
                 <Route path="/send/sdp" element={<Sdp />} exact />
+                <Route path="/send/senddone" element={<SendDone />} exact />
                 <Route path="/receive" element={<Receive />} exact />
             </Routes>
         </HashRouter>
