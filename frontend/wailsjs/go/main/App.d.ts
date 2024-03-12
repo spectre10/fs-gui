@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function Connect(arg1:string):Promise<void>;
 
+export function GetIncrementalStats():Promise<Array<main.IncStats>>;
+
 export function GetSDP(arg1:number,arg2:Array<string>):Promise<string>;
 
 export function GetStats():Promise<main.Stats>;

@@ -1,45 +1,47 @@
 import { Connect, GetStats } from "../wailsjs/go/main/App";
 import { useNavigate, useLocation } from "react-router-dom";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import clipboard from './assets/images/clipboard.png'
 
 function Sdp() {
     let navigate = useNavigate();
     let data = useLocation().state;
     function submitSDP(e) {
         e.preventDefault();
-        Connect(e.target.sdp.value).then(() => {
-            GetStats().then((stats) => {
-                navigate("/send/senddone", { state: stats });
-            })
-        })
-    }
-
-    function handleBack() {
-        navigate("/Send");
+        navigate("/progress");
+        Connect(e.target.sdp.value)
     }
     return (
         <div className="flex flex-col bg-white h-[100vh] text-black">
-            <button className="" onClick={handleBack}>go back</button>
-            <div className="border border-sky-900 bg-cyan-50 p-12 flex-none">
+            <div className="p-6 flex-none grid grid-col-1 place-items-start">
                 <h1 className="text-2xl">Files to send:</h1>
                 {
                     data.filesArr.map((file, index) => {
                         return (
-                            <div key={index} className="flex justify-left items-center">
-                                <p className="text-2xl">{file}</p>
-                            </div>
+                            <p className="text-2xl" key={index}>{file}</p>
                         )
                     })
                 }
             </div>
-            <div className="flex-auto flex flex-col">
-                <h1 className="text-2xl">SDP:</h1>
-                <textarea className="flex-1 border border-sky-900 bg-cyan-50 p-12" value={data.sdpprop} readOnly></textarea>
-            </div>
-            <form onSubmit={submitSDP} className="flex flex-col bg-cyan-900 h-[50vh]">
-                <textarea name="sdp" id="" className="bg-cyan-400 text-4xl" rows={5}>
+            <div className="flex-none grid grid-col-1 gap-0 items-center relative group">
+                <h1 className="text-2xl">Copy and send this code to the receiver:</h1>
+                <textarea className="bg-gray-200 p-6 flex-1" rows={8} value={data.sdpprop} readOnly>
                 </textarea>
-                <button className="border-4 border-black" type="submit">
-                    Connect
+                <CopyToClipboard text={data.sdpprop}>
+                    <button><img src={clipboard} alt="copy" className="h-[1.5em] hidden absolute right-2 top-10 group-hover:block" /></button>
+                </CopyToClipboard>
+            </div>
+            <form id="form1" onSubmit={submitSDP} className="flex flex-col h-[50vh] mt-8">
+                <h1 className="text-2xl">Paste the receiver's code:</h1>
+                <textarea name="sdp" id="" className="bg-gray-200 p-6" rows={8}>
+                </textarea>
+                <button type="submit" className="h-[10%] flex-1 flex justify-center items-center relative px-5 py-3 overflow-hidden font-medium text-gray-600 bg-gray-100 border border-gray-100 shadow-inner group">
+                    <span className="absolute top-0 left-0 w-0 h-0 transition-all duration-200 border-t-2 border-gray-600 group-hover:w-full ease"></span>
+                    <span className="absolute bottom-0 right-0 w-0 h-0 transition-all duration-200 border-b-2 border-gray-600 group-hover:w-full ease"></span>
+                    <span className="absolute top-0 left-0 w-full h-0 transition-all duration-300 delay-200 bg-gray-600 group-hover:h-full ease"></span>
+                    <span className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 delay-200 bg-gray-600 group-hover:h-full ease"></span>
+                    <span className="absolute inset-0 w-full h-full duration-300 delay-300 bg-gray-900 opacity-0 group-hover:opacity-100"></span>
+                    <span className="relative transition-colors duration-300 delay-200 group-hover:text-white ease text-2xl">Connect</span>
                 </button>
             </form>
         </div>

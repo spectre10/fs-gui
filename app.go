@@ -11,11 +11,11 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// App struct
 type App struct {
 	ctx      context.Context
 	session  *send.Session
 	syncChan chan struct{}
+	mu       *sync.Mutex
 }
 
 type Stats struct {
@@ -29,6 +29,7 @@ func NewApp() *App {
 	return &App{
 		session:  nil,
 		syncChan: make(chan struct{}, 1),
+		mu:       &sync.Mutex{},
 	}
 }
 
@@ -53,16 +54,12 @@ func (a *App) Connect(sdp string) {
 	if err != nil {
 		panic(err)
 	}
-	err = a.session.Connect(answer)
-	if err != nil {
-		panic(err)
-	}
+	go a.session.Connect(answer)
 }
 
 func (a *App) GetSDP(n int, paths []string) string {
 	fmt.Println(paths)
-	lock := sync.Mutex{}
-	lock.Lock()
+	a.mu.Lock()
 	session := send.NewSession(n)
 	err := session.SetupConnection(paths)
 	if err != nil {
@@ -74,7 +71,7 @@ func (a *App) GetSDP(n int, paths []string) string {
 		panic(err)
 	}
 	a.session = session
-	lock.Unlock()
+	a.mu.Unlock()
 	return sdp
 }
 
@@ -85,4 +82,33 @@ func (a *App) GetStats() Stats {
 		a.session.TotalAmountTransferred,
 		fmt.Sprintf("%.2f MiB/s", a.session.AverageSpeedMiB),
 	}
+}
+
+type IncStats struct {
+	Total uint64 `json:"total"`
+	Sent  uint64 `json:"sent"`
+}
+
+func (a *App) GetIncrementalStats() []IncStats {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	fmt.Println("Getting stats...")
+	// return "ya"
+	if a.session == nil || a.session.PeerConnection.ICEConnectionState() != webrtc.ICEConnectionStateConnected {
+		fmt.Println("Not connected")
+		return []IncStats{}
+	}
+	statsArr := make([]IncStats, len(a.session.Channels))
+	for i := range a.session.Channels {
+		stats, ok := a.session.PeerConnection.GetStats().GetDataChannelStats(a.session.Channels[i].DC)
+		if !ok {
+			panic("Error getting stats")
+		}
+		statsArr[i] = IncStats{
+			Total: a.session.Channels[i].Size,
+			Sent:  stats.BytesSent - a.session.Channels[i].DC.BufferedAmount(),
+		}
+
+	}
+	return statsArr
 }

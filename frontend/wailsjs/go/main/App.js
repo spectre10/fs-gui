@@ -6,6 +6,10 @@ export function Connect(arg1) {
   return window['go']['main']['App']['Connect'](arg1);
 }
 
+export function GetIncrementalStats() {
+  return window['go']['main']['App']['GetIncrementalStats']();
+}
+
 export function GetSDP(arg1, arg2) {
   return window['go']['main']['App']['GetSDP'](arg1, arg2);
 }
