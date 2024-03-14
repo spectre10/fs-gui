@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"sync"
 
 	"github.com/pion/webrtc/v3"
@@ -22,6 +23,12 @@ type Stats struct {
 	TimeTakenSeconds       string `json:"timeTakenSeconds"`
 	TotalAmountTransferred string `json:"totalAmountTransferred"`
 	AverageSpeedMiB        string `json:"averageSpeedMiB"`
+}
+
+type IncStats struct {
+	Name  string `json:"name"`
+	Total uint64 `json:"total"`
+	Sent  uint64 `json:"sent"`
 }
 
 // NewApp creates a new App application struct
@@ -84,16 +91,20 @@ func (a *App) GetStats() Stats {
 	}
 }
 
-type IncStats struct {
-	Total uint64 `json:"total"`
-	Sent  uint64 `json:"sent"`
+func (a *App) GetFiles(files []string) []string {
+	if a.session == nil {
+		return []string{}
+	}
+	f := make([]string, len(files))
+	for i := range files {
+		f[i] = filepath.Base(files[i])
+	}
+	return f
 }
 
 func (a *App) GetIncrementalStats() []IncStats {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	fmt.Println("Getting stats...")
-	// return "ya"
 	if a.session == nil || a.session.PeerConnection.ICEConnectionState() != webrtc.ICEConnectionStateConnected {
 		fmt.Println("Not connected")
 		return []IncStats{}
@@ -107,6 +118,7 @@ func (a *App) GetIncrementalStats() []IncStats {
 		statsArr[i] = IncStats{
 			Total: a.session.Channels[i].Size,
 			Sent:  stats.BytesSent - a.session.Channels[i].DC.BufferedAmount(),
+			Name:  a.session.Channels[i].Name,
 		}
 
 	}

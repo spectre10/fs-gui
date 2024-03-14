@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useCallback } from 'react';
 import { Line } from 'progressbar.js';
 import './ProgressBar.css';
 
-const wrapper = document.createElement('div');
-
 const ProgressLine = ({ animate }) => {
+    const wrapper = document.createElement('div');
+
     const bar = useMemo(
         () =>
             new Line(wrapper, {
-                strokeWidth: 4,
+                strokeWidth: 0.8,
                 easing: 'easeInOut',
                 // duration: 1400,
                 color: '#FFEA82',
@@ -31,10 +31,12 @@ const ProgressLine = ({ animate }) => {
     }, []);
 
     useEffect(() => {
-        bar.animate(animate);
+        bar.animate(animate.sent / animate.total);
     }, [animate, bar]);
 
-    return <div id="progress-container" ref={node} />;
+    return (
+        <div id="progress-container" className='mt-3 mb-10' ref={node} />
+    );
 };
 
 export default ProgressLine;

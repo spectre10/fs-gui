@@ -1,14 +1,17 @@
 import { Connect, GetStats } from "../wailsjs/go/main/App";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { ClipboardSetText } from "../wailsjs/runtime/runtime"
 import clipboard from './assets/images/clipboard.png'
 
 function Sdp() {
     let navigate = useNavigate();
     let data = useLocation().state;
+    function copy() {
+        ClipboardSetText(data.sdpprop)
+    }
     function submitSDP(e) {
         e.preventDefault();
-        navigate("/progress");
+        navigate("/progress", { state: data.filesArr });
         Connect(e.target.sdp.value)
     }
     return (
@@ -27,9 +30,7 @@ function Sdp() {
                 <h1 className="text-2xl">Copy and send this code to the receiver:</h1>
                 <textarea className="bg-gray-200 p-6 flex-1" rows={8} value={data.sdpprop} readOnly>
                 </textarea>
-                <CopyToClipboard text={data.sdpprop}>
-                    <button><img src={clipboard} alt="copy" className="h-[1.5em] hidden absolute right-2 top-10 group-hover:block" /></button>
-                </CopyToClipboard>
+                <button onClick={copy}><img src={clipboard} alt="copy" className="h-[1.5em] hidden absolute right-2 top-10 group-hover:block" /></button>
             </div>
             <form id="form1" onSubmit={submitSDP} className="flex flex-col h-[50vh] mt-8">
                 <h1 className="text-2xl">Paste the receiver's code:</h1>

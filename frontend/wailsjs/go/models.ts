@@ -1,6 +1,7 @@
 export namespace main {
 	
 	export class IncStats {
+	    name: string;
 	    total: number;
 	    sent: number;
 	
@@ -10,6 +11,7 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
 	        this.total = source["total"];
 	        this.sent = source["sent"];
 	    }
