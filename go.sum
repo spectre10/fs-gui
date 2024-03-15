@@ -131,8 +131,8 @@ github.com/rivo/uniseg v0.4.7/go.mod h1:FN3SvrM+Zdj16jyLfmOkMNblXMcoc8DfTHruCPUc
 github.com/samber/lo v1.38.1 h1:j2XEAqXKb09Am4ebOg31SpvzUTTs6EN3VfgeLUhPdXM=
 github.com/samber/lo v1.38.1/go.mod h1:+m/ZKRl6ClXCE2Lgf3MsQlWfh4bn1bz6CXEOxnEXnEA=
 github.com/sclevine/agouti v3.0.0+incompatible/go.mod h1:b4WX9W9L1sfQKXeJf1mUTLZKJ48R1S7H23Ji7oFO5Bw=
-github.com/spectre10/fs-cli v0.5.3-0.20240310004859-623b1d95b6a4 h1:dcUnN/FHca6ZOtxcUVl1rDM3fMzKRNFdQ2HLGx/CEs0=
-github.com/spectre10/fs-cli v0.5.3-0.20240310004859-623b1d95b6a4/go.mod h1:SIgpb7x+N1tripQW2PQMej8yLzZ+kgxJNzTMGJfXryg=
+github.com/spectre10/fs-cli v0.5.3-0.20240314041939-b10edc245933 h1:8Q6ES054nz6zPSZ4MG4B/izfmRtiGeJHmpRaerCayEE=
+github.com/spectre10/fs-cli v0.5.3-0.20240314041939-b10edc245933/go.mod h1:SIgpb7x+N1tripQW2PQMej8yLzZ+kgxJNzTMGJfXryg=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=

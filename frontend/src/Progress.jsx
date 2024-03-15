@@ -51,9 +51,11 @@ function Progress() {
         <div className="bg-white h-[100vh] text-black">
             <div className="pt-10 flex">
                 <h1 className="text-3xl ml-10 mb-7">Status:
-                    {
-                        done ? " Disconnected" : " Connected"
-                    }
+                    <span className={`${done ? 'text-red-400' : 'text-green-400'}`}>
+                        {
+                            done ? " Disconnected" : " Connected"
+                        }
+                    </span>
                 </h1>
             </div>
             {

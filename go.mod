@@ -1,12 +1,12 @@
 module fs-gui
 
-go 1.21
+go 1.22
 
 toolchain go1.22.0
 
 require (
 	github.com/pion/webrtc/v3 v3.2.29
-	github.com/spectre10/fs-cli v0.5.3-0.20240310004859-623b1d95b6a4
+	github.com/spectre10/fs-cli v0.5.3-0.20240314041939-b10edc245933
 	github.com/wailsapp/wails/v2 v2.8.0
 )
 
