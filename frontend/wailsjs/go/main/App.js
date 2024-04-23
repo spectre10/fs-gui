@@ -6,8 +6,24 @@ export function RecConnect(arg1) {
   return window['go']['main']['App']['RecConnect'](arg1);
 }
 
+export function RecConsentNo() {
+  return window['go']['main']['App']['RecConsentNo']();
+}
+
+export function RecConsentYes() {
+  return window['go']['main']['App']['RecConsentYes']();
+}
+
+export function RecGetIncrementalStats() {
+  return window['go']['main']['App']['RecGetIncrementalStats']();
+}
+
 export function RecGetMetadata() {
   return window['go']['main']['App']['RecGetMetadata']();
+}
+
+export function RecGetStats() {
+  return window['go']['main']['App']['RecGetStats']();
 }
 
 export function SendConnect(arg1) {

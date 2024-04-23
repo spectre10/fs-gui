@@ -32,6 +32,11 @@ type IncStats struct {
 	Sent  uint64 `json:"sent"`
 }
 
+type RecMetadata struct {
+	Name string `json:"name"`
+	Size uint64 `json:"size"`
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
@@ -151,13 +156,62 @@ func (a *App) RecConnect(sdp string) string {
 	return newsdp
 }
 
-func (a *App) RecGetMetadata() []string {
+func (a *App) RecGetMetadata() []RecMetadata {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	<-a.receiveSession.MetadataReady
+	var files []RecMetadata
+	for _, j := range a.receiveSession.Channels {
+		files = append(files, RecMetadata{j.Name, j.Size})
+	}
+	return files
+}
+
+func (a *App) RecConsentYes() []string {
+	a.receiveSession.ConsentInput <- 'Y'
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	var files []string
 	for _, j := range a.receiveSession.Channels {
 		files = append(files, j.Name)
 	}
+	go a.receiveSession.Connect()
 	return files
+}
+
+func (a *App) RecConsentNo() {
+	a.receiveSession.ConsentInput <- 'N'
+}
+
+
+func (a *App) RecGetIncrementalStats() []IncStats {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if a.receiveSession == nil || a.receiveSession.PeerConnection.ICEConnectionState() != webrtc.ICEConnectionStateConnected {
+		fmt.Println("Not connected")
+		return []IncStats{}
+	}
+	statsArr := make([]IncStats, len(a.receiveSession.Channels))
+	for i := range a.receiveSession.Channels {
+		stats, ok := a.receiveSession.PeerConnection.GetStats().GetDataChannelStats(a.receiveSession.Channels[i].DC)
+		if !ok {
+			panic("Error getting stats")
+		}
+		statsArr[i] = IncStats{
+			Total: a.receiveSession.Channels[i].Size,
+			Sent:  stats.BytesReceived,
+			Name:  a.receiveSession.Channels[i].Name,
+		}
+
+	}
+	return statsArr
+}
+
+func (a *App) RecGetStats() Stats {
+	<-a.receiveSession.StatsDone
+	return Stats{
+		fmt.Sprintf("%.2f Seconds", a.receiveSession.TimeTakenSeconds),
+		a.receiveSession.TotalAmountTransferred,
+		fmt.Sprintf("%.2f MiB/s", a.receiveSession.AverageSpeedMiB),
+	}
 }

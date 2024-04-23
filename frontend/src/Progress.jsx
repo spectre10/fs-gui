@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ProgressLine from "./ProgressBar"
-import { SendGetIncrementalStats, SendGetStats, SendGetFiles } from "../wailsjs/go/main/App";
+import { SendGetIncrementalStats, SendGetStats, SendGetFiles, RecGetIncrementalStats, RecGetStats } from "../wailsjs/go/main/App";
 import { useNavigate, useLocation } from "react-router-dom";
 import SendDone from "./SendDone";
 
@@ -9,10 +9,13 @@ function Progress() {
     const [start, setStart] = useState(false);
     const [done, setDone] = useState(false);
     const [stats, setStats] = useState({})
-    const [files, setFiles] = useState(useLocation().state);
-    SendGetFiles(files).then((data) => {
-        setFiles(data);
-    })
+    const [files, setFiles] = useState(useLocation().state.filesArr);
+    const transferState = useLocation().state.transferState;
+    if (transferState == "send") {
+        SendGetFiles(files).then((data) => {
+            setFiles(data);
+        })
+    }
     let navigate = useNavigate();
 
     function handleHome() {
@@ -20,27 +23,51 @@ function Progress() {
     }
 
     function getStats() {
-        SendGetIncrementalStats().then((data) => {
-            if (data.length === 0) {
-                setStart((s) => {
-                    if (s == true) {
-                        let temparr = [{ sent: 1, total: 1 }]
-                        for (let i = 0; i < files.length - 1; i++) {
-                            temparr.push({ sent: 1, total: 1 })
+        if (transferState == "send") {
+            SendGetIncrementalStats().then((data) => {
+                if (data.length === 0) {
+                    setStart((s) => {
+                        if (s == true) {
+                            let temparr = [{ sent: 1, total: 1 }]
+                            for (let i = 0; i < files.length - 1; i++) {
+                                temparr.push({ sent: 1, total: 1 })
+                            }
+                            setArr(temparr);
+                            setDone(true);
+                            SendGetStats().then((s) => {
+                                setStats(s);
+                            })
                         }
-                        setArr(temparr);
-                        setDone(true);
-                        SendGetStats().then((s) => {
-                            setStats(s);
-                        })
-                    }
-                    return s
-                })
-                return
-            }
-            setArr(data);
-            setStart(true);
-        })
+                        return s
+                    })
+                    return
+                }
+                setArr(data);
+                setStart(true);
+            })
+        } else {
+            RecGetIncrementalStats().then((data) => {
+                if (data.length === 0) {
+                    setStart((s) => {
+                        if (s == true) {
+                            let temparr = [{ sent: 1, total: 1 }]
+                            for (let i = 0; i < files.length - 1; i++) {
+                                temparr.push({ sent: 1, total: 1 })
+                            }
+                            setArr(temparr);
+                            setDone(true);
+                            RecGetStats().then((s) => {
+                                setStats(s);
+                            })
+                        }
+                        return s
+                    })
+                    return
+                }
+                setArr(data);
+                setStart(true);
+            })
+        }
     }
 
     useEffect(() => {
@@ -64,8 +91,8 @@ function Progress() {
                         <div className="flex flex-col justify-center items-center">
                             {
                                 (file.sent / 1048576.0).toFixed(2) === (file.total / 1048576.0).toFixed(2) ?
-                                    <p className='text-2xl'>Sending {files[i]}: Done!</p> :
-                                    <p className='text-2xl'>Sending {files[i]}: {(file.sent / 1048576.0).toFixed(2)} / {(file.total / 1048576.0).toFixed(2)} MiB</p>
+                                    <p className='text-2xl'>{transferState == "send" ? "Sending" : "Receiving"} {files[i]}: Done!</p> :
+                                    <p className='text-2xl'>{transferState == "send" ? "Sending" : "Receiving"} {files[i]}: {(file.sent / 1048576.0).toFixed(2)} / {(file.total / 1048576.0).toFixed(2)} MiB</p>
                             }
                             <ProgressLine animate={file} key={i} />
                         </div>

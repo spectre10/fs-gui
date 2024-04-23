@@ -11,7 +11,7 @@ function Sdp() {
     }
     function submitSDP(e) {
         e.preventDefault();
-        navigate("/send/progress", { state: data.filesArr });
+        navigate("/send/progress", { state: {filesArr: data.filesArr, transferState: "send"} });
         SendConnect(e.target.sdp.value)
     }
     return (

@@ -16,6 +16,20 @@ export namespace main {
 	        this.sent = source["sent"];
 	    }
 	}
+	export class RecMetadata {
+	    name: string;
+	    size: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new RecMetadata(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.size = source["size"];
+	    }
+	}
 	export class Stats {
 	    timeTakenSeconds: string;
 	    totalAmountTransferred: string;

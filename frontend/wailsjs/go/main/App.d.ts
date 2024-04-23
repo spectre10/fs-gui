@@ -4,7 +4,15 @@ import {main} from '../models';
 
 export function RecConnect(arg1:string):Promise<string>;
 
-export function RecGetMetadata():Promise<Array<string>>;
+export function RecConsentNo():Promise<void>;
+
+export function RecConsentYes():Promise<Array<string>>;
+
+export function RecGetIncrementalStats():Promise<Array<main.IncStats>>;
+
+export function RecGetMetadata():Promise<Array<main.RecMetadata>>;
+
+export function RecGetStats():Promise<main.Stats>;
 
 export function SendConnect(arg1:string):Promise<void>;
 
