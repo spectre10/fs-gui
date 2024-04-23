@@ -8,15 +8,16 @@ import (
 
 	"github.com/pion/webrtc/v3"
 	"github.com/spectre10/fs-cli/lib"
+	"github.com/spectre10/fs-cli/session/receive"
 	"github.com/spectre10/fs-cli/session/send"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type App struct {
-	ctx      context.Context
-	session  *send.Session
-	syncChan chan struct{}
-	mu       *sync.Mutex
+	ctx            context.Context
+	sendSession    *send.Session
+	receiveSession *receive.Session
+	mu             *sync.Mutex
 }
 
 type Stats struct {
@@ -34,9 +35,9 @@ type IncStats struct {
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
-		session:  nil,
-		syncChan: make(chan struct{}, 1),
-		mu:       &sync.Mutex{},
+		sendSession:    nil,
+		receiveSession: nil,
+		mu:             &sync.Mutex{},
 	}
 }
 
@@ -47,7 +48,9 @@ func (a *App) startup(ctx context.Context) {
 }
 
 // Greet returns a greeting for the given name
-func (a *App) OpenFilePicker() []string {
+func (a *App) SendOpenFilePicker() []string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	res, err := runtime.OpenMultipleFilesDialog(a.ctx, runtime.OpenDialogOptions{})
 	if err != nil {
 		panic(err)
@@ -55,18 +58,19 @@ func (a *App) OpenFilePicker() []string {
 	return res
 }
 
-func (a *App) Connect(sdp string) {
+func (a *App) SendConnect(sdp string) {
 	answer := webrtc.SessionDescription{}
 	err := lib.Decode(sdp, &answer)
 	if err != nil {
 		panic(err)
 	}
-	go a.session.Connect(answer)
+	go a.sendSession.Connect(answer)
 }
 
-func (a *App) GetSDP(n int, paths []string) string {
+func (a *App) SendGetSDP(n int, paths []string) string {
 	fmt.Println(paths)
 	a.mu.Lock()
+	defer a.mu.Unlock()
 	session := send.NewSession(n)
 	err := session.SetupConnection(paths)
 	if err != nil {
@@ -77,22 +81,21 @@ func (a *App) GetSDP(n int, paths []string) string {
 	if err != nil {
 		panic(err)
 	}
-	a.session = session
-	a.mu.Unlock()
+	a.sendSession = session
 	return sdp
 }
 
-func (a *App) GetStats() Stats {
-	<-a.session.StatsDone
+func (a *App) SendGetStats() Stats {
+	<-a.sendSession.StatsDone
 	return Stats{
-		fmt.Sprintf("%.2f Seconds", a.session.TimeTakenSeconds),
-		a.session.TotalAmountTransferred,
-		fmt.Sprintf("%.2f MiB/s", a.session.AverageSpeedMiB),
+		fmt.Sprintf("%.2f Seconds", a.sendSession.TimeTakenSeconds),
+		a.sendSession.TotalAmountTransferred,
+		fmt.Sprintf("%.2f MiB/s", a.sendSession.AverageSpeedMiB),
 	}
 }
 
-func (a *App) GetFiles(files []string) []string {
-	if a.session == nil {
+func (a *App) SendGetFiles(files []string) []string {
+	if a.sendSession == nil {
 		return []string{}
 	}
 	f := make([]string, len(files))
@@ -102,25 +105,59 @@ func (a *App) GetFiles(files []string) []string {
 	return f
 }
 
-func (a *App) GetIncrementalStats() []IncStats {
+func (a *App) SendGetIncrementalStats() []IncStats {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	if a.session == nil || a.session.PeerConnection.ICEConnectionState() != webrtc.ICEConnectionStateConnected {
+	if a.sendSession == nil || a.sendSession.PeerConnection.ICEConnectionState() != webrtc.ICEConnectionStateConnected {
 		fmt.Println("Not connected")
 		return []IncStats{}
 	}
-	statsArr := make([]IncStats, len(a.session.Channels))
-	for i := range a.session.Channels {
-		stats, ok := a.session.PeerConnection.GetStats().GetDataChannelStats(a.session.Channels[i].DC)
+	statsArr := make([]IncStats, len(a.sendSession.Channels))
+	for i := range a.sendSession.Channels {
+		stats, ok := a.sendSession.PeerConnection.GetStats().GetDataChannelStats(a.sendSession.Channels[i].DC)
 		if !ok {
 			panic("Error getting stats")
 		}
 		statsArr[i] = IncStats{
-			Total: a.session.Channels[i].Size,
-			Sent:  stats.BytesSent - a.session.Channels[i].DC.BufferedAmount(),
-			Name:  a.session.Channels[i].Name,
+			Total: a.sendSession.Channels[i].Size,
+			Sent:  stats.BytesSent - a.sendSession.Channels[i].DC.BufferedAmount(),
+			Name:  a.sendSession.Channels[i].Name,
 		}
 
 	}
 	return statsArr
+}
+
+/**************************Receive Methods*****************************/
+
+func (a *App) RecConnect(sdp string) string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.receiveSession = receive.NewSession()
+	err := a.receiveSession.CreateConnection()
+	if err != nil {
+		panic(err)
+	}
+	answer := webrtc.SessionDescription{}
+	err = lib.Decode(sdp, &answer)
+	if err != nil {
+		panic(err)
+	}
+
+	newsdp, err := a.receiveSession.GenSDP(answer)
+	if err != nil {
+		panic(err)
+	}
+	return newsdp
+}
+
+func (a *App) RecGetMetadata() []string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	<-a.receiveSession.MetadataReady
+	var files []string
+	for _, j := range a.receiveSession.Channels {
+		files = append(files, j.Name)
+	}
+	return files
 }

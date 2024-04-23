@@ -1,12 +1,12 @@
 import filesave from "./assets/images/filesave.png";
-import { OpenFilePicker, GetSDP } from "../wailsjs/go/main/App";
+import { SendOpenFilePicker, SendGetSDP } from "../wailsjs/go/main/App";
 import { useNavigate } from "react-router-dom";
 
 function Send() {
     let navigate = useNavigate();
     function handle() {
-        OpenFilePicker().then((result) => {
-            GetSDP(result.length, result).then((sdpres) => {
+        SendOpenFilePicker().then((result) => {
+            SendGetSDP(result.length, result).then((sdpres) => {
                 navigate("/send/sdp", { state: { filesArr: result, sdpprop: sdpres } });
             })
         })

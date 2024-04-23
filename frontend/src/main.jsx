@@ -8,6 +8,7 @@ import Sdp from './Sdp'
 import Progress from './Progress'
 import SendDone from './SendDone'
 import Receive from './Receive'
+import Consent from './Consent'
 
 const container = document.getElementById('root')
 const root = ReactDOM.createRoot(container)
@@ -20,8 +21,9 @@ root.render(
                 <Route path="/send" element={<Send />} exact />
                 <Route path="/send/sdp" element={<Sdp />} exact />
                 <Route path="/send/senddone" element={<SendDone />} exact />
+                <Route path="/send/progress" element={<Progress />} exact />
                 <Route path="/receive" element={<Receive />} exact />
-                <Route path="/progress" element={<Progress />} exact />
+                <Route path="/receive/consent" element={<Consent />} exact />
             </Routes>
         </HashRouter>
     // </React.StrictMode>

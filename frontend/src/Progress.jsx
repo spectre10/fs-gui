@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ProgressLine from "./ProgressBar"
-import { GetIncrementalStats, GetStats, GetFiles } from "../wailsjs/go/main/App";
+import { SendGetIncrementalStats, SendGetStats, SendGetFiles } from "../wailsjs/go/main/App";
 import { useNavigate, useLocation } from "react-router-dom";
 import SendDone from "./SendDone";
 
@@ -10,7 +10,7 @@ function Progress() {
     const [done, setDone] = useState(false);
     const [stats, setStats] = useState({})
     const [files, setFiles] = useState(useLocation().state);
-    GetFiles(files).then((data) => {
+    SendGetFiles(files).then((data) => {
         setFiles(data);
     })
     let navigate = useNavigate();
@@ -20,7 +20,7 @@ function Progress() {
     }
 
     function getStats() {
-        GetIncrementalStats().then((data) => {
+        SendGetIncrementalStats().then((data) => {
             if (data.length === 0) {
                 setStart((s) => {
                     if (s == true) {
@@ -30,7 +30,7 @@ function Progress() {
                         }
                         setArr(temparr);
                         setDone(true);
-                        GetStats().then((s) => {
+                        SendGetStats().then((s) => {
                             setStats(s);
                         })
                     }

@@ -1,4 +1,4 @@
-import { Connect, GetStats } from "../wailsjs/go/main/App";
+import { SendConnect } from "../wailsjs/go/main/App";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ClipboardSetText } from "../wailsjs/runtime/runtime"
 import clipboard from './assets/images/clipboard.png'
@@ -11,8 +11,8 @@ function Sdp() {
     }
     function submitSDP(e) {
         e.preventDefault();
-        navigate("/progress", { state: data.filesArr });
-        Connect(e.target.sdp.value)
+        navigate("/send/progress", { state: data.filesArr });
+        SendConnect(e.target.sdp.value)
     }
     return (
         <div className="flex flex-col bg-white h-[100vh] text-black">
